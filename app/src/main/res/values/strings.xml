@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ScreenLink</string>
-    <string name="acc_desc">Lets ScreenLink tap and swipe so your iPad can control this phone.</string>
+    <string name="app_name">Family Help</string>
+    <string name="acc_desc">Family Help can tap and scroll for you so the family member you call can help with your phone.</string>
 </resources>
