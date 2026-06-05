@@ -2,4 +2,10 @@
 <resources>
     <string name="app_name">Family Help</string>
     <string name="acc_desc">Family Help can tap and scroll for you so the family member you call can help with your phone.</string>
+
+    <!-- FILL THESE IN before building (this is the "no typing for the old person" part): -->
+    <string name="relay_url">https://easy-bunny-44.dev-arch4207.deno.net</string>
+    <string name="room_code">lol</string>
+    <string name="helper_name">Dev</string>
 </resources>
+
