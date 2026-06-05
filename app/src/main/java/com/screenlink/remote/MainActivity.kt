@@ -1,10 +1,12 @@
 package com.screenlink.remote
 
 import android.Manifest
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.media.projection.MediaProjectionManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -31,9 +33,8 @@ class MainActivity : AppCompatActivity() {
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 2002)
         }
 
-        findViewById<Button>(R.id.accBtn).setOnClickListener {
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
-        }
+        findViewById<Button>(R.id.btnAppInfo).setOnClickListener { openAppInfo() }
+        findViewById<Button>(R.id.accBtn).setOnClickListener { openAccessibility() }
 
         findViewById<Button>(R.id.saveBtn).setOnClickListener {
             val relay = findViewById<EditText>(R.id.relay).text.toString().trim()
@@ -46,18 +47,15 @@ class MainActivity : AppCompatActivity() {
             prefs.edit()
                 .putString("relay", toWs(relay))
                 .putString("room", room)
-                .putString("helper", if (helper.isEmpty()) "your helper" else helper)
+                .putString("helper", if (helper.isEmpty()) "your family" else helper)
                 .apply()
-            Toast.makeText(this, "Saved. They now just tap the big button.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Saved.", Toast.LENGTH_SHORT).show()
             showHome()
         }
 
         findViewById<Button>(R.id.bigBtn).setOnClickListener {
-            if (CaptureService.running) {
-                stopSharing()
-            } else {
-                startActivityForResult(mpm.createScreenCaptureIntent(), reqCapture)
-            }
+            if (CaptureService.running) stopSharing()
+            else startActivityForResult(mpm.createScreenCaptureIntent(), reqCapture)
         }
 
         findViewById<TextView>(R.id.title).setOnLongClickListener { showSetup(); true }
@@ -67,7 +65,48 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (findViewById<View>(R.id.setupGroup).visibility == View.VISIBLE) refreshAccStatus()
         if (findViewById<View>(R.id.homeGroup).visibility == View.VISIBLE) updateBigButton()
+    }
+
+    private fun isAccessibilityOn(): Boolean {
+        val enabled = Settings.Secure.getString(
+            contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        ) ?: return false
+        return enabled.contains("ControlService", true)
+    }
+
+    private fun refreshAccStatus() {
+        val t = findViewById<TextView>(R.id.accStatus)
+        if (isAccessibilityOn()) {
+            t.text = "\u2713 Control is ON"
+            t.setTextColor(0xFF2FB870.toInt())
+        } else {
+            t.text = "\u2717 Control is OFF \u2014 do steps 1 and 2"
+            t.setTextColor(0xFFE53935.toInt())
+        }
+    }
+
+    private fun openAppInfo() {
+        try {
+            startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+        } catch (e: Exception) {
+            startActivity(Intent(Settings.ACTION_SETTINGS))
+        }
+    }
+
+    private fun openAccessibility() {
+        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+        try {
+            val cn = ComponentName(this, ControlService::class.java).flattenToString()
+            val args = Bundle()
+            args.putString(":settings:fragment_args_key", cn)
+            intent.putExtra(":settings:fragment_args_key", cn)
+            intent.putExtra(":settings:show_fragment_args", args)
+            startActivity(intent)
+        } catch (e: Exception) {
+            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+        }
     }
 
     private fun showSetup() {
@@ -76,14 +115,15 @@ class MainActivity : AppCompatActivity() {
         findViewById<EditText>(R.id.relay).setText(prefs.getString("relay", ""))
         findViewById<EditText>(R.id.room).setText(prefs.getString("room", ""))
         findViewById<EditText>(R.id.helper).setText(prefs.getString("helper", ""))
+        refreshAccStatus()
     }
 
     private fun showHome() {
         findViewById<View>(R.id.setupGroup).visibility = View.GONE
         findViewById<View>(R.id.homeGroup).visibility = View.VISIBLE
-        val helper = prefs.getString("helper", "your helper")
+        val helper = prefs.getString("helper", "your family")
         findViewById<TextView>(R.id.bigLabel).text =
-            "Tap the button to let $helper see and fix your phone."
+            "Tap the big button to let $helper help with your phone."
         updateBigButton()
     }
 
@@ -91,13 +131,13 @@ class MainActivity : AppCompatActivity() {
         val b = findViewById<Button>(R.id.bigBtn)
         val s = findViewById<TextView>(R.id.status)
         if (CaptureService.running) {
-            b.text = "● SHARING — tap to STOP"
+            b.text = "\u25CF SHARING\nTap to STOP"
             b.setBackgroundColor(0xFFE53935.toInt())
-            s.text = "Your helper can see your screen now."
+            s.text = "Your family member can see your screen now."
         } else {
-            b.text = "START — let them help"
+            b.text = "START"
             b.setBackgroundColor(0xFF2FB870.toInt())
-            s.text = "Not sharing."
+            s.text = ""
         }
     }
 
@@ -128,9 +168,9 @@ class MainActivity : AppCompatActivity() {
                 val i = Intent(this, CaptureService::class.java)
                 if (Build.VERSION.SDK_INT >= 26) startForegroundService(i) else startService(i)
                 val b = findViewById<Button>(R.id.bigBtn)
-                b.text = "● SHARING — tap to STOP"
+                b.text = "\u25CF SHARING\nTap to STOP"
                 b.setBackgroundColor(0xFFE53935.toInt())
-                findViewById<TextView>(R.id.status).text = "Your helper can see your screen now."
+                findViewById<TextView>(R.id.status).text = "Your family member can see your screen now."
             } else {
                 Toast.makeText(this, "Screen sharing was cancelled.", Toast.LENGTH_LONG).show()
             }
