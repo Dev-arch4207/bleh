@@ -29,6 +29,15 @@ class MainActivity : AppCompatActivity() {
         mpm = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         prefs = getSharedPreferences("screenlink", Context.MODE_PRIVATE)
 
+        // Auto-configure from the values baked into strings.xml — so the elder types NOTHING.
+        if ((prefs.getString("relay", "") ?: "").isEmpty()) {
+            prefs.edit()
+                .putString("relay", toWs(getString(R.string.relay_url)))
+                .putString("room", getString(R.string.room_code).trim().uppercase())
+                .putString("helper", getString(R.string.helper_name))
+                .apply()
+        }
+
         if (Build.VERSION.SDK_INT >= 33) {
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 2002)
         }
@@ -58,9 +67,11 @@ class MainActivity : AppCompatActivity() {
             else startActivityForResult(mpm.createScreenCaptureIntent(), reqCapture)
         }
 
+        // Helper-only: long-press the title to open setup (to enable Control, or change settings).
         findViewById<TextView>(R.id.title).setOnLongClickListener { showSetup(); true }
 
-        if ((prefs.getString("relay", "") ?: "").isEmpty()) showSetup() else showHome()
+        // The elder always lands on the one big button — never the setup screen.
+        showHome()
     }
 
     override fun onResume() {
@@ -82,7 +93,7 @@ class MainActivity : AppCompatActivity() {
             t.text = "\u2713 Control is ON"
             t.setTextColor(0xFF2FB870.toInt())
         } else {
-            t.text = "\u2717 Control is OFF \u2014 do steps 1 and 2"
+            t.text = "\u2717 Control is OFF (view-only). For control, do steps 1 and 2."
             t.setTextColor(0xFFE53935.toInt())
         }
     }
@@ -148,7 +159,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun toWs(url: String): String {
-        var s = url
+        var s = url.trim()
         s = when {
             s.startsWith("https://") -> "wss://" + s.substring(8)
             s.startsWith("http://") -> "ws://" + s.substring(7)
