@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<LinearLayout
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ScreenLink Help"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="8dp" />
+
+    <LinearLayout
+        android:id="@+id/setupGroup"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Setup (helper only)"
+            android:textStyle="bold"
+            android:paddingTop="8dp" />
+
+        <EditText
+            android:id="@+id/relay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Relay URL (https://yourname.deno.dev)"
+            android:inputType="textUri"
+            android:autofillHints="" />
+
+        <EditText
+            android:id="@+id/room"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Room code for THIS friend (e.g. RAMESH1)"
+            android:inputType="textCapCharacters"
+            android:autofillHints="" />
+
+        <EditText
+            android:id="@+id/helper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Your name (shown to them)"
+            android:inputType="textCapWords"
+            android:autofillHints="" />
+
+        <Button
+            android:id="@+id/accBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enable Accessibility (lets you control)"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/saveBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save setup"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Give each friend a different room code. After saving, they only see one big button."
+            android:textColor="#888888"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/homeGroup"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/bigLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tap the button to let your helper see and fix your phone."
+            android:textSize="19sp"
+            android:gravity="center"
+            android:paddingTop="24dp"
+            android:paddingBottom="24dp" />
+
+        <Button
+            android:id="@+id/bigBtn"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:text="START — let them help"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#888888"
+            android:gravity="center"
+            android:paddingTop="20dp" />
+    </LinearLayout>
+</LinearLayout>
+</ScrollView>
